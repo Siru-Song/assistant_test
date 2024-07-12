@@ -17,11 +17,6 @@ from utils import (
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 assistant = client.beta.assistants.retrieve(st.secrets["ASSISTANT_ID"])
 
-assistant = client.beta.assistants.update(
-  assistant_id=st.secrets["ASSISTANT_ID"],
-  tool_resources={"file_search": {"vector_store_ids": st.secrets["FILE_ID"]}},
-)
-
 st.set_page_config(page_title="jiny", page_icon="🧐")
 
 # Apply custom CSS
@@ -64,6 +59,12 @@ if qn_btn.button("Ask jiny"):
         thread = client.beta.threads.create()
         st.session_state.thread_id = thread.id
         print(st.session_state.thread_id)
+
+    # Update the thread to attach the file
+    client.beta.threads.update(
+        thread_id=st.session_state.thread_id,
+        tool_resources={"file_search": {"file_ids": [st.secrets["FILE_ID"]]}}
+    )
 
     if "text_boxes" not in st.session_state:
         st.session_state.text_boxes = []
