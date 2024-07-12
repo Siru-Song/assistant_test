@@ -41,7 +41,7 @@ if "text_boxes" not in st.session_state:
     st.session_state.text_boxes = []
 
 # UI
-st.subheader(" jiny: Paper Study Engine")
+st.subheader("📖 jiny: Paper Study Engine")
 st.markdown("This demo studied 20 papers of PFAS")
 
 text_box = st.empty()
