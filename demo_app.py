@@ -82,10 +82,10 @@ if qn_btn.button("Ask jiny"):
 
     # Increment the question counter and use it as a unique key
     st.session_state.question_counter += 1
-    unique_key = f"question_{st.session_state.question_counter}"
+    unique_key = f"text_box_{st.session_state.question_counter}"
 
     st.session_state.text_boxes.append(st.empty())
-    st.session_state.text_boxes[-1].success(f"**>😕 User:** {question}", key=unique_key)
+    st.session_state.text_boxes[-1].success(f"**>😕 User:** {question}")
 
     with client.beta.threads.runs.stream(
         thread_id=st.session_state.thread_id,
