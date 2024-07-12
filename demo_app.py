@@ -67,7 +67,10 @@ if qn_btn.button("Ask jiny"):
     client.beta.threads.update(
         thread_id=st.session_state.thread_id,
         tool_resources={
-            "vector_store": {"vector_store_ids": [st.secrets["VECTOR_STORE_ID"]]}  # Use the secret for the vector store ID
+            "file_search": {
+                "file_ids": [],
+                "vector_store_ids": [st.secrets["VECTOR_STORE_ID"]]  # Correctly use vector_store_ids within file_search
+            }
         },
     )
 
@@ -89,7 +92,7 @@ if qn_btn.button("Ask jiny"):
     ) as stream:
         stream.until_done()
 
-    st.toast("jiny has finished searching the data", icon="")
+    st.toast("jiny has finished searching the data", icon="🕵️‍♂️")
 
     # Prepare the files for download
     with st.spinner("Preparing the files for download..."):
@@ -105,5 +108,4 @@ if qn_btn.button("Ask jiny"):
         # Clean-up
         delete_files(st.session_state.assistant_created_file_ids)
         delete_thread(st.session_state.thread_id)
-        st.session_state.thread_id = None
         st.session_state.thread_id = None
