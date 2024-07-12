@@ -60,11 +60,15 @@ if qn_btn.button("Ask jiny"):
         st.session_state.thread_id = thread.id
         print(st.session_state.thread_id)
 
-    # Update the thread to attach the file
-    client.beta.threads.update(
-        thread_id=st.session_state.thread_id,
-        tool_resources={"file_search": {"file_ids": [st.secrets["FILE_ID"]]}}
-    )
+    try:
+        # Update the thread to attach the file
+        client.beta.threads.update(
+            thread_id=st.session_state.thread_id,
+            tool_resources={"file_search": {"file_ids": [st.secrets["FILE_ID"]]}}
+        )
+    except Exception as e:
+        st.error(f"Failed to update the thread: {e}")
+        st.stop()
 
     if "text_boxes" not in st.session_state:
         st.session_state.text_boxes = []
@@ -78,27 +82,38 @@ if qn_btn.button("Ask jiny"):
     st.session_state.text_boxes.append(st.empty())
     st.session_state.text_boxes[-1].success(f"**> 🤔 User:** {question}")
 
-    with client.beta.threads.runs.stream(
-        thread_id=st.session_state.thread_id,
-        assistant_id=assistant.id,
-        tool_choice={"type": "file_search"},
-        event_handler=EventHandler(),
-        temperature=0
-    ) as stream:
-        stream.until_done()
-        st.toast("jiny has finished searching the data", icon="🕵")
+    try:
+        with client.beta.threads.runs.stream(
+            thread_id=st.session_state.thread_id,
+            assistant_id=assistant.id,
+            tool_choice={"type": "file_search"},
+            event_handler=EventHandler(),
+            temperature=0
+        ) as stream:
+            stream.until_done()
+            st.toast("jiny has finished searching the data", icon="🕵")
+    except Exception as e:
+        st.error(f"Error during assistant run: {e}")
+        st.stop()
 
     # Prepare the files for download
     with st.spinner("Preparing the files for download..."):
-        # Retrieve the messages by the Assistant from the thread
-        assistant_messages = retrieve_messages_from_thread(st.session_state.thread_id)
-        # For each assistant message, retrieve the file(s) created by the Assistant
-        st.session_state.assistant_created_file_ids = retrieve_assistant_created_files(assistant_messages)
-        # Download these files
-        st.session_state.download_files, st.session_state.download_file_names = render_download_files(st.session_state.assistant_created_file_ids)
+        try:
+            # Retrieve the messages by the Assistant from the thread
+            assistant_messages = retrieve_messages_from_thread(st.session_state.thread_id)
+            # For each assistant message, retrieve the file(s) created by the Assistant
+            st.session_state.assistant_created_file_ids = retrieve_assistant_created_files(assistant_messages)
+            # Download these files
+            st.session_state.download_files, st.session_state.download_file_names = render_download_files(st.session_state.assistant_created_file_ids)
+        except Exception as e:
+            st.error(f"Failed to prepare files for download: {e}")
+            st.stop()
 
     # Clean-up
-    # Delete the file(s) created by the Assistant
-    delete_files(st.session_state.assistant_created_file_ids)
-    # Delete the thread
-    delete_thread(st.session_state.thread_id)
+    try:
+        # Delete the file(s) created by the Assistant
+        delete_files(st.session_state.assistant_created_file_ids)
+        # Delete the thread
+        delete_thread(st.session_state.thread_id)
+    except Exception as e:
+        st.error(f"Cleanup failed: {e}")
