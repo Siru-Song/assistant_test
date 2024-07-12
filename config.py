@@ -1,3 +1,3 @@
 import streamlit as st
 
-VECTOR_STORE_ID = st.secrets["FILE_ID"]
+VECTOR_STORE_ID = st.secrets["VECTOR_STORE_ID"]
