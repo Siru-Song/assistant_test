@@ -15,7 +15,7 @@ from utils import (
 
 # Initialise the OpenAI client and retrieve the assistant
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-assistant = client.beta.assistants.retrieve(st.secrets["ASSISTANT_ID"])
+assistant = client.assistants.retrieve(st.secrets["ASSISTANT_ID"])
 
 st.set_page_config(page_title="jiny", page_icon="🧐")
 
@@ -56,15 +56,15 @@ if qn_btn.button("Ask jiny"):
 
     # Create a new thread if not already created
     if "thread_id" not in st.session_state:
-        thread = client.beta.threads.create()
+        thread = client.threads.create()
         st.session_state.thread_id = thread.id
         print(st.session_state.thread_id)
 
     try:
         # Update the thread to attach the file
-        client.beta.threads.update(
+        client.threads.update(
             thread_id=st.session_state.thread_id,
-            tool_resources={"file_search": {"file_ids": [st.secrets["FILE_ID"]]}}
+            file_ids=[st.secrets["FILE_ID"]]
         )
     except Exception as e:
         st.error(f"Failed to update the thread: {e}")
@@ -73,7 +73,7 @@ if qn_btn.button("Ask jiny"):
     if "text_boxes" not in st.session_state:
         st.session_state.text_boxes = []
 
-    client.beta.threads.messages.create(
+    client.threads.messages.create(
         thread_id=st.session_state.thread_id,
         role="user",
         content=question
@@ -83,10 +83,10 @@ if qn_btn.button("Ask jiny"):
     st.session_state.text_boxes[-1].success(f"**> 🤔 User:** {question}")
 
     try:
-        with client.beta.threads.runs.stream(
+        with client.threads.runs.stream(
             thread_id=st.session_state.thread_id,
             assistant_id=assistant.id,
-            tool_choice={"type": "file_search"},
+            tool="file_search",
             event_handler=EventHandler(),
             temperature=0
         ) as stream:
