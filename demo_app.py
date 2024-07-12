@@ -6,48 +6,23 @@ from utils import (
     delete_thread,
     EventHandler,
     moderation_endpoint,
+    is_nsfw,
     render_custom_css,
     render_download_files,
     retrieve_messages_from_thread,
     retrieve_assistant_created_files
 )
 
-# Initialize the OpenAI client
+# Initialise the OpenAI client and retrieve the assistant
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-# Attempt to retrieve the assistant
-assistant_id = st.secrets["ASSISTANT_ID"]
-if not assistant_id:
-    st.error("ASSISTANT_ID is not set in Streamlit secrets.")
-    st.stop()
-
-try:
-    assistant = client.assistants.retrieve(assistant_id)
-except Exception as e:
-    st.error(f"Failed to retrieve the assistant. Error: {e}")
-    st.stop()
+assistant = client.beta.assistants.retrieve(st.secrets["ASSISTANT_ID"])
 
 st.set_page_config(page_title="jiny", page_icon="🧐")
 
 # Apply custom CSS
 render_custom_css()
 
-# Initialize the assistant object directly if the retrieval method is incorrect
-try:
-    assistant = client.beta.assistants.retrieve(assistant_id)
-except AttributeError:
-    st.error("The method to retrieve the assistant is incorrect. Please check the OpenAI API documentation for the correct method.")
-    st.stop()
-except Exception as e:
-    st.error(f"Failed to retrieve the assistant. Error: {e}")
-    st.stop()
-
-st.set_page_config(page_title="jiny", page_icon="🧐")
-
-# Apply custom CSS
-render_custom_css()
-
-# Initialize session state variables
+# Initialise session state variables
 if "file_uploaded" not in st.session_state:
     st.session_state.file_uploaded = False
 
@@ -89,7 +64,7 @@ if qn_btn.button("Ask jiny"):
         # Update the thread to attach the file
         client.beta.threads.update(
             thread_id=st.session_state.thread_id,
-            file_ids=[st.secrets["FILE_ID"]]
+            tool_resources={"file_search": {"file_ids": [st.secrets["FILE_ID"]]}}
         )
     except Exception as e:
         st.error(f"Failed to update the thread: {e}")
@@ -111,7 +86,7 @@ if qn_btn.button("Ask jiny"):
         with client.beta.threads.runs.stream(
             thread_id=st.session_state.thread_id,
             assistant_id=assistant.id,
-            tool="file_search",
+            tool_choice={"type": "file_search"},
             event_handler=EventHandler(),
             temperature=0
         ) as stream:
