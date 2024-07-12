@@ -19,7 +19,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 my_assistant = client.beta.assistants.create(
     instructions=INSTRUCTIONS,
     name="Data Analyst",
-    tools=[{"type": "files_attached"}],
+    tools=[{"type": "file_search"}],
     model="gpt-4o",
 )
 
