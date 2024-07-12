@@ -13,16 +13,22 @@ from utils import (
     retrieve_assistant_created_files
 )
 
-# Initialise the OpenAI client and retrieve the assistant
+# Initialize the OpenAI client
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-assistant = client.assistants.retrieve(st.secrets["ASSISTANT_ID"])
+
+# Attempt to retrieve the assistant
+try:
+    assistant = client.assistants.retrieve(st.secrets["ASSISTANT_ID"])
+except AttributeError:
+    st.error("Failed to retrieve the assistant. Please check the ASSISTANT_ID in your Streamlit secrets.")
+    st.stop()
 
 st.set_page_config(page_title="jiny", page_icon="🧐")
 
 # Apply custom CSS
 render_custom_css()
 
-# Initialise session state variables
+# Initialize session state variables
 if "file_uploaded" not in st.session_state:
     st.session_state.file_uploaded = False
 
