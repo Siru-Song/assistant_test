@@ -39,6 +39,8 @@ if "thread_id" not in st.session_state:
     st.session_state.thread_id = None
 if "text_boxes" not in st.session_state:
     st.session_state.text_boxes = []
+if "question_counter" not in st.session_state:
+    st.session_state.question_counter = 0
 
 # UI
 st.subheader("📖 jiny: Paper Study Engine")
@@ -47,9 +49,12 @@ st.markdown("This demo studied 20 papers of PFAS")
 text_box = st.empty()
 qn_btn = st.empty()
 
-question = text_box.text_area("Ask a question", disabled=st.session_state.disabled)
+question = text_box.text_area("Ask a question", disabled=st.session_state.disabled, key="question_area")
 
 if qn_btn.button("Ask jiny"):
+    text_box.empty()
+    qn_btn.empty()
+
     if moderation_endpoint(question):
         st.warning("Your question has been flagged. Refresh page to try again.")
         st.stop()
@@ -75,8 +80,12 @@ if qn_btn.button("Ask jiny"):
         content=question
     )
 
+    # Increment the question counter and use it as a unique key
+    st.session_state.question_counter += 1
+    unique_key = f"question_{st.session_state.question_counter}"
+
     st.session_state.text_boxes.append(st.empty())
-    st.session_state.text_boxes[-1].success(f"**>😕 User:** {question}")
+    st.session_state.text_boxes[-1].success(f"**>😕 User:** {question}", key=unique_key)
 
     with client.beta.threads.runs.stream(
         thread_id=st.session_state.thread_id,
@@ -102,10 +111,5 @@ if qn_btn.button("Ask jiny"):
 
         # Clean-up
         delete_files(st.session_state.assistant_created_file_ids)
-
-    # Allow for more questions
-    st.session_state.disabled = False
-
-# Display previous conversations
-for text_box in st.session_state.text_boxes:
-    text_box.text_area("Previous Question and Answer", disabled=True)
+        delete_thread(st.session_state.thread_id)
+        st.session_state.thread_id = None
