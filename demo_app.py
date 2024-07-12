@@ -12,7 +12,6 @@ from utils import (
     retrieve_messages_from_thread,
     retrieve_assistant_created_files
 )
-from config import VECTOR_STORE_ID  # Importing configuration
 
 # Initialize the OpenAI client
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -20,7 +19,7 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 # Retrieve the assistant
 assistant = client.beta.assistants.retrieve(st.secrets["ASSISTANT_ID"])
 
-st.set_page_config(page_title="jiny", page_icon="🧐")
+st.set_page_config(page_title="jiny", page_icon="")
 
 # Apply custom CSS
 render_custom_css()
@@ -42,7 +41,7 @@ if "text_boxes" not in st.session_state:
     st.session_state.text_boxes = []
 
 # UI
-st.subheader("📖 jiny: Paper Study Engine")
+st.subheader(" jiny: Paper Study Engine")
 st.markdown("This demo studied 20 papers of PFAS")
 
 text_box = st.empty()
@@ -68,8 +67,7 @@ if qn_btn.button("Ask jiny"):
         thread_id=st.session_state.thread_id,
         tool_resources={
             "file_search": {
-                "file_ids": [],
-                "vector_store_ids": [st.secrets["VECTOR_STORE_ID"]]  # Correctly use vector_store_ids within file_search
+                "vector_store_ids": [st.secrets["VECTOR_STORE_ID"]]  # Use the secret for the vector store ID
             }
         },
     )
@@ -92,7 +90,7 @@ if qn_btn.button("Ask jiny"):
     ) as stream:
         stream.until_done()
 
-    st.toast("jiny has finished searching the data", icon="🕵️‍♂️")
+    st.toast("jiny has finished searching the data", icon="")
 
     # Prepare the files for download
     with st.spinner("Preparing the files for download..."):
