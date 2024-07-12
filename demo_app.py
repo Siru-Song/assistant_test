@@ -50,9 +50,6 @@ qn_btn = st.empty()
 question = text_box.text_area("Ask a question", disabled=st.session_state.disabled)
 
 if qn_btn.button("Ask jiny"):
-    text_box.empty()
-    qn_btn.empty()
-
     if moderation_endpoint(question):
         st.warning("Your question has been flagged. Refresh page to try again.")
         st.stop()
@@ -105,5 +102,10 @@ if qn_btn.button("Ask jiny"):
 
         # Clean-up
         delete_files(st.session_state.assistant_created_file_ids)
-        delete_thread(st.session_state.thread_id)
-        st.session_state.thread_id = None
+
+    # Allow for more questions
+    st.session_state.disabled = False
+
+# Display previous conversations
+for text_box in st.session_state.text_boxes:
+    text_box.text_area("Previous Question and Answer", disabled=True)
