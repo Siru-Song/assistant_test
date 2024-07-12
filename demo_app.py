@@ -19,7 +19,7 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 # Retrieve the assistant
 assistant = client.beta.assistants.retrieve(st.secrets["ASSISTANT_ID"])
 
-st.set_page_config(page_title="jiny", page_icon="")
+st.set_page_config(page_title="jiny", page_icon="🧐")
 
 # Apply custom CSS
 render_custom_css()
@@ -79,7 +79,7 @@ if qn_btn.button("Ask jiny"):
     )
 
     st.session_state.text_boxes.append(st.empty())
-    st.session_state.text_boxes[-1].success(f"**> User:** {question}")
+    st.session_state.text_boxes[-1].success(f"**>😕 User:** {question}")
 
     with client.beta.threads.runs.stream(
         thread_id=st.session_state.thread_id,
@@ -90,7 +90,7 @@ if qn_btn.button("Ask jiny"):
     ) as stream:
         stream.until_done()
 
-    st.toast("jiny has finished searching the data", icon="")
+    st.toast("jiny has finished searching the data", icon="🕵️‍♂️")
 
     # Prepare the files for download
     with st.spinner("Preparing the files for download..."):
