@@ -6,7 +6,6 @@ from utils import (
     delete_thread,
     EventHandler,
     moderation_endpoint,
-    is_nsfw,
     render_custom_css,
     render_download_files,
     retrieve_messages_from_thread,
@@ -17,10 +16,15 @@ from utils import (
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Attempt to retrieve the assistant
+assistant_id = st.secrets["ASSISTANT_ID"]
+if not assistant_id:
+    st.error("ASSISTANT_ID is not set in Streamlit secrets.")
+    st.stop()
+
 try:
-    assistant = client.assistants.retrieve(st.secrets["ASSISTANT_ID"])
-except AttributeError:
-    st.error("Failed to retrieve the assistant. Please check the ASSISTANT_ID in your Streamlit secrets.")
+    assistant = client.assistants.retrieve(assistant_id)
+except Exception as e:
+    st.error(f"Failed to retrieve the assistant. Error: {e}")
     st.stop()
 
 st.set_page_config(page_title="jiny", page_icon="🧐")
