@@ -15,7 +15,10 @@ from utils import (
 
 # Initialise the OpenAI client and retrieve the assistant
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-assistant = client.beta.assistants.retrieve(st.secrets["ASSISTANT_ID"])
+assistant = client.beta.assistants.retrieve(
+  assistant_id=st.secrets["ASSISTANT_ID"],
+  tool_resources={"file_search": {"vector_store_ids":st.secrets["FILE_ID"]}},
+)
 
 st.set_page_config(page_title="jiny", page_icon="🧐")
 
