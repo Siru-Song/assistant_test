@@ -32,6 +32,21 @@ st.set_page_config(page_title="jiny", page_icon="🧐")
 # Apply custom CSS
 render_custom_css()
 
+# Initialize the assistant object directly if the retrieval method is incorrect
+try:
+    assistant = client.beta.assistants.retrieve(assistant_id)
+except AttributeError:
+    st.error("The method to retrieve the assistant is incorrect. Please check the OpenAI API documentation for the correct method.")
+    st.stop()
+except Exception as e:
+    st.error(f"Failed to retrieve the assistant. Error: {e}")
+    st.stop()
+
+st.set_page_config(page_title="jiny", page_icon="🧐")
+
+# Apply custom CSS
+render_custom_css()
+
 # Initialize session state variables
 if "file_uploaded" not in st.session_state:
     st.session_state.file_uploaded = False
@@ -66,13 +81,13 @@ if qn_btn.button("Ask jiny"):
 
     # Create a new thread if not already created
     if "thread_id" not in st.session_state:
-        thread = client.threads.create()
+        thread = client.beta.threads.create()
         st.session_state.thread_id = thread.id
         print(st.session_state.thread_id)
 
     try:
         # Update the thread to attach the file
-        client.threads.update(
+        client.beta.threads.update(
             thread_id=st.session_state.thread_id,
             file_ids=[st.secrets["FILE_ID"]]
         )
@@ -83,7 +98,7 @@ if qn_btn.button("Ask jiny"):
     if "text_boxes" not in st.session_state:
         st.session_state.text_boxes = []
 
-    client.threads.messages.create(
+    client.beta.threads.messages.create(
         thread_id=st.session_state.thread_id,
         role="user",
         content=question
@@ -93,7 +108,7 @@ if qn_btn.button("Ask jiny"):
     st.session_state.text_boxes[-1].success(f"**> 🤔 User:** {question}")
 
     try:
-        with client.threads.runs.stream(
+        with client.beta.threads.runs.stream(
             thread_id=st.session_state.thread_id,
             assistant_id=assistant.id,
             tool="file_search",
