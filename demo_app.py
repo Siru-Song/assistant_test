@@ -19,7 +19,7 @@ assistant = client.beta.assistants.retrieve(st.secrets["ASSISTANT_ID"])
 
 assistant = client.beta.assistants.update(
   assistant_id=st.secrets["ASSISTANT_ID"],
-  tool_resources={"file_search": {"vector_store_ids": [st.secrets["FILE_ID"]}},
+  tool_resources={"file_search": {"vector_store_ids": st.secrets["FILE_ID"]}},
 )
 
 st.set_page_config(page_title="jiny", page_icon="🧐")
