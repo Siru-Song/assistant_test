@@ -1,6 +1,3 @@
-"""
-demo_app.py
-"""
 import os
 import streamlit as st
 from openai import OpenAI
@@ -10,19 +7,17 @@ from utils import (
     EventHandler,
     moderation_endpoint,
     is_nsfw,
-    # is_not_question,
     render_custom_css,
     render_download_files,
     retrieve_messages_from_thread,
     retrieve_assistant_created_files
-    )
+)
 
-# Initialise the OpenAI client, and retrieve the assistant
+# Initialise the OpenAI client and retrieve the assistant
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 assistant = client.beta.assistants.retrieve(st.secrets["ASSISTANT_ID"])
 
-st.set_page_config(page_title="jiny",
-                   page_icon="🧐")
+st.set_page_config(page_title="jiny", page_icon="🧐")
 
 # Apply custom CSS
 render_custom_css()
@@ -59,12 +54,7 @@ if qn_btn.button("Ask jiny"):
         st.warning("Your question has been flagged. Refresh page to try again.")
         st.stop()
 
-    # if is_not_question(question):
-    #     st.warning("Please ask a question. Refresh page to try again.")
-    #     client.beta.threads.delete(st.session_state.thread_id)
-    #     st.stop()
-
-    # Create a new thread
+    # Create a new thread if not already created
     if "thread_id" not in st.session_state:
         thread = client.beta.threads.create()
         st.session_state.thread_id = thread.id
@@ -72,13 +62,13 @@ if qn_btn.button("Ask jiny"):
 
     # Update the thread to attach the file
     client.beta.threads.update(
-            thread_id=st.session_state.thread_id,
-            tool_resources={"code_interpreter": {"file_ids": [st.secrets["FILE_ID"]]}}
-            )
+        thread_id=st.session_state.thread_id,
+        tool_resources={"file_search": {"file_ids": [st.secrets["FILE_ID"]]}}
+    )
 
     if "text_boxes" not in st.session_state:
         st.session_state.text_boxes = []
-        
+
     client.beta.threads.messages.create(
         thread_id=st.session_state.thread_id,
         role="user",
@@ -88,11 +78,13 @@ if qn_btn.button("Ask jiny"):
     st.session_state.text_boxes.append(st.empty())
     st.session_state.text_boxes[-1].success(f"**> 🤔 User:** {question}")
 
-    with client.beta.threads.runs.stream(thread_id=st.session_state.thread_id,
-                                          assistant_id=assistant.id,
-                                          tool_choice={"type": "file_search"},
-                                          event_handler=EventHandler(),
-                                          temperature=0) as stream:
+    with client.beta.threads.runs.stream(
+        thread_id=st.session_state.thread_id,
+        assistant_id=assistant.id,
+        tool_choice={"type": "file_search"},
+        event_handler=EventHandler(),
+        temperature=0
+    ) as stream:
         stream.until_done()
         st.toast("jiny has finished searching the data", icon="🕵")
 
