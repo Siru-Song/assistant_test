@@ -21,8 +21,8 @@ from utils import (
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 assistant = client.beta.assistants.retrieve(st.secrets["ASSISTANT_ID"])
 
-st.set_page_config(page_title="DAVE",
-                   page_icon="🕵️")
+st.set_page_config(page_title="jiny",
+                   page_icon="🧐")
 
 # Apply custom CSS
 render_custom_css()
@@ -44,13 +44,13 @@ if "disabled" not in st.session_state:
     st.session_state.disabled = False
 
 # UI
-st.subheader("🔮 DAVE: Data Analysis & Visualisation Engine")
-st.markdown("This demo uses a data.gov.sg dataset on HDB resale prices.", help="[Source](https://beta.data.gov.sg/collections/189/datasets/d_ebc5ab87086db484f88045b47411ebc5/view)")
+st.subheader("📖 jiny: Paper Study Engine")
+st.markdown("This demo studied 20 papers of PFAS")
 text_box = st.empty()
 qn_btn = st.empty()
 
 question = text_box.text_area("Ask a question", disabled=st.session_state.disabled)
-if qn_btn.button("Ask DAVE"):
+if qn_btn.button("Ask jiny"):
 
     text_box.empty()
     qn_btn.empty()
@@ -94,7 +94,7 @@ if qn_btn.button("Ask DAVE"):
                                           event_handler=EventHandler(),
                                           temperature=0) as stream:
         stream.until_done()
-        st.toast("DAVE has finished analysing the data", icon="🕵️")
+        st.toast("jiny has finished searching the data", icon="🕵")
 
     # Prepare the files for download
     with st.spinner("Preparing the files for download..."):
