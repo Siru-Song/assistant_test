@@ -292,7 +292,7 @@ class EventHandler(AssistantEventHandler):
         # Create a new text box
         st.session_state.text_boxes.append(st.empty())
         # Insert the text into the last element in assistant text list
-        st.session_state.assistant_text[-1] += "**> 🕵️ DAVE:** \n\n "
+        st.session_state.assistant_text[-1] += "**> 🕵️ Jiny:** \n\n "
         # Remove links from the text
         st.session_state.assistant_text[-1] = remove_links(st.session_state.assistant_text[-1])
         # Display the text in the newly created text box
